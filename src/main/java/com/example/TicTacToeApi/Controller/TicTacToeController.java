@@ -1,71 +1,46 @@
 package com.example.TicTacToeApi.Controller;
 
 import com.example.TicTacToeApi.Model.Board;
+import com.example.TicTacToeApi.Model.Bot;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 
 @RestController
+@RequestMapping("/api")
 public class TicTacToeController {
-    private Board board;
 
-    @GetMapping("/api")
-    public String getBoard(@RequestParam(name = "board") int[] boardArr, @RequestParam(name = "symbol") String symbol) {
-        this.board = new Board(boardArr);
+    @GetMapping
+    public ResponseEntity<String[][]> getBoardState(
+            @RequestParam(value = "board") String boardParam,
+            @RequestParam(value = "symbol") String symbolParam) {
 
-        // Make the player's move
-        String currentPlayer = this.board.getCurrentPlayer();
-        if (!currentPlayer.equals(symbol)) {
-            return "Invalid symbol. It's " + currentPlayer + "'s turn.";
-        }
-        int row = 0;
-        int col = 0;
-        boolean moveMade = false;
-        for (int i = 0; i < 9; i++) {
-            row = i / 3;
-            col = i % 3;
-            if (this.board.getBoard()[row][col] == 0) {
-                moveMade = this.board.makeMove(row, col);
-                if (moveMade) {
-                    break;
-                }
+        try {
+            // Convert board parameter string to integer array
+            int[] board = Arrays.stream(boardParam.split(",")).mapToInt(Integer::parseInt).toArray();
+            // Check that the board parameter contains 9 integers separated by commas
+            if (board.length != 9) {
+                throw new IllegalArgumentException("Board parameter must contain 9 integers separated by commas");
             }
+
+            // Create new Tic Tac Toe board object using the integer array
+            Board ticTacToeBoard = new Board(board);
+            // Create new Tic Tac Toe bot object
+            Bot ticTacToeBot = new Bot();
+            // Make a move on the board with the given symbol
+            char[][] updatedBoard = ticTacToeBot.makeMove(ticTacToeBoard.getBoard(), symbolParam.charAt(0));
+            // Get the current state of the board as a string array
+            String[][] boardState = ticTacToeBoard.getBoardState(symbolParam.charAt(0));
+
+            // Return the current board state as a response entity
+            return ResponseEntity.ok(boardState);
+        } catch (Exception e) {
+            // Handle any exceptions by returning a bad request with a null body
+            return ResponseEntity.badRequest().body(null);
         }
-        if (!moveMade) {
-            return "Invalid move. The board is full or the cell is already occupied.";
-        }
-
-        // Print the board
-        String boardString = "";
-        int[][] boardArrCurrent = this.board.getBoard();
-        for (int[] rowArr : boardArrCurrent) {
-            boardString += "\n";
-            for (int cell : rowArr) {
-                if (cell == 0) {
-                    boardString += "_ ";
-                } else if (cell == 1) {
-                    boardString += "X ";
-                } else if (cell == 2) {
-                    boardString += "O ";
-                }
-            }
-        }
-
-        return "Current player: " + this.board.getCurrentPlayer() + "\nBoard:" + boardString + "\n" + boardArrCurrent;
-    }
-
-    @GetMapping("/")
-    public ResponseEntity<String> playGame(@RequestParam String board, @RequestParam String symbol) {
-        int[] boardArr = Arrays.stream(board.split(",")).mapToInt(Integer::parseInt).toArray();
-        Board gameBoard = new Board(boardArr);
-        gameBoard.setCurrentPlayer(symbol);
-
-        System.out.println("Current player: " + gameBoard.getCurrentPlayer());
-        System.out.println("Board:\n" + gameBoard.getBoardString());
-
-        return ResponseEntity.ok("Current player: " + gameBoard.getCurrentPlayer() + "\nBoard:\n" + gameBoard.toString());
     }
 }
