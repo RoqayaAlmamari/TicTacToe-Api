@@ -33,6 +33,8 @@ public class TicTacToeController {
             Bot ticTacToeBot = new Bot();
             // Make a move on the board with the given symbol
             char[][] updatedBoard = ticTacToeBot.makeMove(ticTacToeBoard.getBoard(), symbolParam.charAt(0));
+            // Update the board state with the new move
+            ticTacToeBoard.setBoard(updatedBoard);
             // Get the current state of the board as a string array
             String[][] boardState = ticTacToeBoard.getBoardState(symbolParam.charAt(0));
 

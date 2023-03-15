@@ -12,7 +12,13 @@ public class Board {
             this.board[row][col] = (board[i] == 1) ? 'X' : (board[i] == 2) ? 'O' : '-';
         }
     }
+    public char[][] getBoard() {
+        return board;
+    }
 
+    public void setBoard(char[][] board) {
+        this.board = board;
+    }
     // method to get the current state of the board based on the input symbol
     public String[][] getBoardState(char symbol) {
         String[][] boardState = new String[3][3];
@@ -24,8 +30,25 @@ public class Board {
         return boardState;
     }
 
-    // method to get the board
-    public char[][] getBoard() {
-        return board;
+    // method to check if the input symbol has won the game
+    public boolean checkWin(char symbol) {
+        // Check rows and columns
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
+                return true;
+            }
+            if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) {
+                return true;
+            }
+        }
+        // Check diagonals
+        if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
+            return true;
+        }
+        if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
+            return true;
+        }
+        // No win condition found
+        return false;
     }
 }

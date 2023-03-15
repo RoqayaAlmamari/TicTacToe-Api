@@ -1,11 +1,12 @@
 package com.example.TicTacToeApi.Model;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Bot {
+
+    // Method to make a move on the board with the given symbol
     public char[][] makeMove(char[][] board, char symbol) {
         // Find all available positions to play
         List<int[]> availablePositions = new ArrayList<>();
@@ -17,38 +18,14 @@ public class Bot {
             }
         }
 
-        // If there are no available positions, return the board as it is
-        if (availablePositions.isEmpty()) {
-            return board;
-        }
-
-        // Check if the bot can win in the next move
-        for (int[] position : availablePositions) {
-            board[position[0]][position[1]] = symbol;
-            if (checkWin(board, symbol)) {
-                return board;
-            }
-            board[position[0]][position[1]] = '-';
-        }
-
-        // Check if the opponent can win in the next move and block them
-        char opponentSymbol = (symbol == 'X') ? 'O' : 'X';
-        for (int[] position : availablePositions) {
-            board[position[0]][position[1]] = opponentSymbol;
-            if (checkWin(board, opponentSymbol)) {
-                board[position[0]][position[1]] = symbol;
-                return board;
-            }
-            board[position[0]][position[1]] = '-';
-        }
-
         // Choose a random available position to play
         int[] randomPosition = availablePositions.get(new Random().nextInt(availablePositions.size()));
         board[randomPosition[0]][randomPosition[1]] = symbol;
         return board;
     }
 
-    private boolean checkWin(char[][] board, char symbol) {
+    // Method to check if the given symbol has won the game on the given board
+    public boolean hasWon(char[][] board, char symbol) {
         // Check rows and columns
         for (int i = 0; i < 3; i++) {
             if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
@@ -67,5 +44,22 @@ public class Bot {
         }
         // No win condition found
         return false;
+    }
+
+    // Method to check if the board is full
+    public boolean isBoardFull(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == '-') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Method to get the opposite symbol of the given symbol
+    public char getOppositeSymbol(char symbol) {
+        return (symbol == 'X') ? 'O' : 'X';
     }
 }
